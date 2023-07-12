@@ -5,8 +5,26 @@ const {
   GraphQLString, 
   GraphQLInt, 
   GraphQLSchema,
-  GraphQLID
+  GraphQLID,
+  GraphQLList
  } = require('graphql');
+
+ // ProjectType definition
+const ProjectType = new GraphQLObjectType({
+  name: 'Project',
+  fields: () => ({
+    id: { type: GraphQLID },
+    title: { type: GraphQLString },
+    weight: { type: GraphQLInt },
+    description: { type: GraphQLString },
+    tasks: {
+      type: new GraphQLList(TaskType),
+      resolve(parent) {
+        return _.filter(tasks, { projectId: parent.id });
+      },
+    },
+  }),
+});
 
 // TaskType definition
 const TaskType = new GraphQLObjectType({
@@ -16,6 +34,12 @@ const TaskType = new GraphQLObjectType({
     title: { type: GraphQLString },
     weight: { type: GraphQLInt },
     description: { type: GraphQLString },
+    project: {
+      type: ProjectType,
+      resolve(parent) {
+        return _.find(projects, { id: parent.projectId });
+      },
+    },
   },
 });
 
@@ -35,23 +59,6 @@ const tasks = [
       'Copy the content of 0-index.html into 1-index.html Create the head and body sections inside the html tag, create the head and body tags (empty) in this order',
   },
 ];
-
-// ProjectType definition
-const ProjectType = new GraphQLObjectType({
-  name: 'Project',
-  fields: {
-    id: { type: GraphQLID },
-    title: { type: GraphQLString },
-    weight: { type: GraphQLInt },
-    description: { type: GraphQLString },
-    tasks: {
-      type: TaskType,
-      resolve(parent, args) {
-        return _.filter(tasks, { projectId: parent.id });
-      },
-    },
-  },
-});
 
 const projects = [
   {
@@ -97,7 +104,7 @@ const RootQueryType = new GraphQLObjectType({
   },
 });
 
-// Export the GraphQLSchema with RootQuery
+
 module.exports = new GraphQLSchema({
   query: RootQueryType,
 });
