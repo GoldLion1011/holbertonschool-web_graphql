@@ -9,8 +9,25 @@ const {
   GraphQLList
  } = require('graphql');
 
+// TaskType definition
+const TaskType = new GraphQLObjectType({
+  name: 'Task',
+  fields:  () => ({
+    id: { type: GraphQLID }, 
+    title: { type: GraphQLString },
+    weight: { type: GraphQLInt },
+    description: { type: GraphQLString },
+    project: {
+      type: ProjectType,
+      resolve(parent) {
+        return _.find(projects, { id: parent.projectId });
+      }
+    }
+  })
+});
+
  // ProjectType definition
-const ProjectType = new GraphQLObjectType({
+ const ProjectType = new GraphQLObjectType({
   name: 'Project',
   fields: () => ({
     id: { type: GraphQLID },
@@ -20,27 +37,10 @@ const ProjectType = new GraphQLObjectType({
     tasks: {
       type: new GraphQLList(TaskType),
       resolve(parent) {
-        return _.filter(tasks, { projectId: parent.id });
-      },
-    },
-  }),
-});
-
-// TaskType definition
-const TaskType = new GraphQLObjectType({
-  name: 'Task',
-  fields: {
-    id: { type: GraphQLID }, 
-    title: { type: GraphQLString },
-    weight: { type: GraphQLInt },
-    description: { type: GraphQLString },
-    project: {
-      type: ProjectType,
-      resolve(parent) {
-        return _.find(projects, { id: parent.projectId });
-      },
-    },
-  },
+        return _.filter(tasks, (task) => task.projectId === parent.id);
+      }
+    }
+  })
 });
 
 const tasks = [
@@ -50,6 +50,7 @@ const tasks = [
     weight: 1,
     description:
       'Create your first HTML file 0-index.html with: - Add the doctype on the first line (without any comment) - After the doctype, open and close an html tag Open your file in your browser (the page should be blank)',
+      projectId: '1',
   },
   {
     id: '2',
@@ -57,6 +58,7 @@ const tasks = [
     weight: 1,
     description:
       'Copy the content of 0-index.html into 1-index.html Create the head and body sections inside the html tag, create the head and body tags (empty) in this order',
+      projectId: '2',
   },
 ];
 
@@ -99,6 +101,18 @@ const RootQueryType = new GraphQLObjectType({
       },
       resolve(parent, args) {
         return _.find(projects, { id: args.id });
+      }
+    },
+    tasks: {
+      type: new GraphQLList(TaskType),
+      resolve(parent, args) {
+        return tasks; // return all tasks
+      }
+    },
+    projects: {
+      type: new GraphQLList(ProjectType),
+      resolve(parent, args) {
+        return projects; // return all projects
       }
     }
   },
