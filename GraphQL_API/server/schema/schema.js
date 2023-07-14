@@ -1,4 +1,5 @@
-const _ = require('lodash'); // used to retrieve data from the database
+const _ = require('lodash');
+const mongoose = require('mongoose');
 
 const { 
   GraphQLObjectType, 
@@ -6,8 +7,13 @@ const {
   GraphQLInt, 
   GraphQLSchema,
   GraphQLID,
-  GraphQLList
+  GraphQLList,
+  GraphQLNonNull
  } = require('graphql');
+
+const Task = require('../models/task');
+const Project = require('../models/project');
+
 
 // TaskType definition
 const TaskType = new GraphQLObjectType({
@@ -81,6 +87,46 @@ const projects = [
   }
 ];
 
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: () => ({
+    addProject: {
+      type: ProjectType,
+      args: {
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        weight: { type: new GraphQLNonNull(GraphQLInt) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parent, args) {
+        const newProject = new Project({
+          title: args.title,
+          weight: args.weight,
+          description: args.description,
+        });
+        return newProject.save();
+      }
+    },
+    addTask: {
+      type: TaskType,
+      args: {
+        title: { type: new GraphQLNonNull(GraphQLString) },
+        weight: { type: new GraphQLNonNull(GraphQLInt) },
+        description: { type: new GraphQLNonNull(GraphQLString) },
+        project: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve(parent, args) {
+        const newTask = new Task({
+          title: args.title,
+          weight: args.weight,
+          description: args.description,
+          projectId: args.project,
+        });
+        return newTask.save();
+      }
+    }    
+  })
+});
+
 // RootQuery definition
 const RootQueryType = new GraphQLObjectType({
   name: 'RootQueryType',
@@ -89,6 +135,7 @@ const RootQueryType = new GraphQLObjectType({
       type: TaskType,
       args: {
         id: { type: GraphQLID },
+      // mutation: Mutation,
       },
       resolve(parent, args) {
         return _.find(tasks, { id: args.id });
@@ -121,4 +168,5 @@ const RootQueryType = new GraphQLObjectType({
 
 module.exports = new GraphQLSchema({
   query: RootQueryType,
+  mutation: Mutation
 });
