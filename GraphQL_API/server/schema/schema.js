@@ -48,6 +48,7 @@ const TaskType = new GraphQLObjectType({
   })
 });
 
+// Mutations make the Mongo a DB!
 const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
@@ -58,7 +59,7 @@ const Mutation = new GraphQLObjectType({
         weight: { type: new GraphQLNonNull(GraphQLInt) },
         description: { type: new GraphQLNonNull(GraphQLString) },
       },
-      resolve(parent, args) {
+      resolve(parent, args) { //data from user input
         const newProject = new Project({
           title: args.title,
           weight: args.weight,
@@ -75,7 +76,7 @@ const Mutation = new GraphQLObjectType({
         description: { type: new GraphQLNonNull(GraphQLString) },
         project: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve(parent, args) {
+      resolve(parent, args) { //data from user input
         const newTask = new Task({
           title: args.title,
           weight: args.weight,
