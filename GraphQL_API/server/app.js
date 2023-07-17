@@ -6,6 +6,8 @@ const cors = require('cors');
 
 const app = express();
 
+app.use(cors());
+
 app.use('/graphql', graphqlHTTP({
   schema: schema, 
   graphiql: true 
@@ -14,8 +16,6 @@ app.use('/graphql', graphqlHTTP({
 app.listen(4000, () => {
   console.log('Server running on port 4000');
 });
-
-app.use(cors());
 
 const connectionString = 'mongodb+srv://Sarah:YmAewJcKBagm2ky0@cluster0.gvom3z3.mongodb.net/?retryWrites=true&w=majority';
 

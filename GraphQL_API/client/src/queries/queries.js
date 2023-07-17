@@ -83,7 +83,7 @@ const addProjectMutation = gql`
   }
 `;
 
-const getTaskDetailsQuery = gql`
+const getTaskDetailQuery = gql`
   query($id: ID) {
     task(id: $id) {
       id
@@ -93,9 +93,11 @@ const getTaskDetailsQuery = gql`
       project {
         id
         title
+        weight
         tasks {
           id
           title
+          weight
         }
       }
     }
@@ -107,5 +109,5 @@ export {
   getProjectsQuery,
   addTaskMutation,
   addProjectMutation,
-  getTaskDetailsQuery
+  getTaskDetailQuery
 };

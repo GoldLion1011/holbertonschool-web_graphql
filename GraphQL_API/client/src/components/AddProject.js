@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { gql } from "react-apollo";
+import { graphql } from "react-apollo";
 import { flowRight as compose } from "lodash";
 import { getProjectsQuery, addProjectMutation } from "../queries/queries";
 
